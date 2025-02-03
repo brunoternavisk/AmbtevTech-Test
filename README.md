@@ -144,6 +144,7 @@ This will provide a user-friendly interface to test API endpoints.
 `PUT /api/Sale/{id}`
 ```json
 {
+    "id": SALE_ID_HERE
     "saleNumber": "987652",
     "customerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "branchId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
