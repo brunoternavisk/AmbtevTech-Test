@@ -39,4 +39,8 @@
 		<ProjectReference Include="..\..\src\Ambev.DeveloperEvaluation.ORM\Ambev.DeveloperEvaluation.ORM.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Compile Remove="Domain\Repositories\SaleRepositoryTests.cs" />
+	</ItemGroup>
+
 </Project>

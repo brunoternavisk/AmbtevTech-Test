@@ -3,6 +3,7 @@ using Ambev.DeveloperEvaluation.Common.HealthChecks;
 using Ambev.DeveloperEvaluation.Common.Logging;
 using Ambev.DeveloperEvaluation.Common.Security;
 using Ambev.DeveloperEvaluation.Common.Validation;
+using Ambev.DeveloperEvaluation.Infrastructure.Data;
 using Ambev.DeveloperEvaluation.IoC;
 using Ambev.DeveloperEvaluation.ORM;
 using Ambev.DeveloperEvaluation.WebApi.Middleware;
@@ -16,32 +17,24 @@ public class Program
 {
     public static void Main(string[] args)
     {
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .WriteTo.File("logs/startup.log", rollingInterval: RollingInterval.Day)
+            .MinimumLevel.Debug()
+            .CreateLogger();
+
         try
         {
-            Log.Information("Starting web application");
-
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-            builder.AddDefaultLogging();
+            builder.Host.UseSerilog();
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-
-            builder.AddBasicHealthChecks();
             builder.Services.AddSwaggerGen();
-
-            builder.Services.AddDbContext<DefaultContext>(options =>
-                options.UseNpgsql(
-                    builder.Configuration.GetConnectionString("DefaultConnection"),
-                    b => b.MigrationsAssembly("Ambev.DeveloperEvaluation.ORM")
-                )
-            );
-
+            builder.AddBasicHealthChecks();
             builder.Services.AddJwtAuthentication(builder.Configuration);
-
             builder.RegisterDependencies();
-
             builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(ApplicationLayer).Assembly);
-
             builder.Services.AddMediatR(cfg =>
             {
                 cfg.RegisterServicesFromAssemblies(
@@ -49,10 +42,18 @@ public class Program
                     typeof(Program).Assembly
                 );
             });
-
             builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseNpgsql(
+                    builder.Configuration.GetConnectionString("DefaultConnection"),
+                    b => b.MigrationsAssembly("Ambev.DeveloperEvaluation.Infrastructure")
+                )
+            );
+
+            builder.WebHost.UseUrls("http://localhost:5119");
 
             var app = builder.Build();
+
             app.UseMiddleware<ValidationExceptionMiddleware>();
 
             if (app.Environment.IsDevelopment())
@@ -62,19 +63,16 @@ public class Program
             }
 
             app.UseHttpsRedirection();
-
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseBasicHealthChecks();
-
             app.MapControllers();
 
             app.Run();
         }
         catch (Exception ex)
         {
-            Log.Fatal(ex, "Application terminated unexpectedly");
+            Log.Fatal(ex, "A aplicação falhou ao iniciar!");
         }
         finally
         {

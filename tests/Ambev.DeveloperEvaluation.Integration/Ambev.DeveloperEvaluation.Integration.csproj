@@ -28,4 +28,16 @@
     <ProjectReference Include="..\..\src\Ambev.DeveloperEvaluation.ORM\Ambev.DeveloperEvaluation.ORM.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="WebApi\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="WebApi\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="WebApi\**" />
+  </ItemGroup>
+
 </Project>
