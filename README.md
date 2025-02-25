@@ -59,10 +59,11 @@ The project was developed using the following technologies:
 - **.NET 8.0** (C#)
 - **ASP.NET Core Web API**
 - **Entity Framework Core**
-- **In-Memory Database (for testing purposes)**
-- **xUnit** (for unit testing)
+- **PostgreSQL & MongoDB**
+- **xUnit & NSubstitute (for unit testing)**
+- **Faker.NET (for test data generation)**
 - **Swagger (OpenAPI)**
-- **Docker** (optional, for containerization)
+- **Docker (optional, for containerization)**
 
 ---
 
@@ -94,80 +95,87 @@ git clone https://github.com/brunoternavisk/AmbtevTech-Test
 cd developer-evaluation
 ```
 
-### 2️⃣ Run the API Locally
+### 2️⃣ Set Up the Database
+Ensure you have **PostgreSQL** and **MongoDB** running. Use the following commands to create the database:
+```sh
+psql -U postgres -c "CREATE DATABASE developer_evaluation;"
+```
+If using Docker, run:
+```sh
+docker-compose up -d
+```
+
+### 3️⃣ Run Migrations
+```sh
+dotnet ef database update --project src/Ambev.DeveloperEvaluation.Infrastructure
+```
+
+### 4️⃣ Run the API Locally
 ```sh
 dotnet run --project src/Ambev.DeveloperEvaluation.WebApi
 ```
-
 The API should be running on `http://localhost:5119` by default.
 
-### 3️⃣ Run Tests
+### 5️⃣ Run Tests
 ```sh
 dotnet test
 ```
 
-### 4️⃣ Swagger Documentation
+### 6️⃣ Swagger Documentation
 Once the API is running, open your browser and access:
 ```
 http://localhost:5119/swagger
 ```
-
 This will provide a user-friendly interface to test API endpoints.
 
 ---
 
 ## 🔗 API Endpoints
 
-### 📌 **Sales**
-#### Create a Sale
-`POST /api/Sale`
+### 📌 **Carts**
+#### Create a Cart
+`POST /api/Cart`
 ```json
 {
-    "saleNumber": "987652",
-    "customerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "branchId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "items": [
+    "userId": 321,
+    "products": [
         {
-            "productId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "productDescription": "Gaming Chair",
-            "quantity": 1,
-            "unitPrice": 500
+            "productId": 700,
+            "quantity": 5,
+            "unitPrice": 20.0
         }
     ]
 }
 ```
 
-#### Get a Sale by ID
-`GET /api/Sale/{id}`
+#### Get a Cart by ID
+`GET /api/Cart/{id}`
 
-#### Update a Sale
-`PUT /api/Sale/{id}`
+#### Update a Cart
+`PUT /api/Cart/{id}`
 ```json
 {
-    "id": SALE_ID_HERE
-    "saleNumber": "987652",
-    "customerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "branchId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "items": [
+    "id": 3,
+    "userId": 321,
+    "products": [
         {
-            "productId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "productDescription": "Gaming Chair",
-            "quantity": 2,
-            "unitPrice": 450
+            "productId": 700,
+            "quantity": 10,
+            "unitPrice": 15.0
         }
     ]
 }
 ```
 
-#### Delete a Sale
-`DELETE /api/Sale/{id}`
+#### Delete a Cart
+`DELETE /api/Cart/{id}`
 
 ---
 
 ## 📌 Additional Considerations
-- Events such as `SaleCreated`, `SaleModified`, `SaleCancelled`, and `ItemCancelled` could be logged or published to a message broker for further processing.
+- Events such as `CartCreated`, `CartUpdated`, `CartDeleted` could be logged or published to a message broker for further processing.
 - The repository follows **Clean Code**, **SOLID**, and **DRY** principles for maintainability.
-- Further improvements could include **unit testing coverage reports** and **database persistence with SQL Server** instead of an in-memory database.
+- Further improvements could include **unit testing coverage reports** and **database persistence with SQL Server** instead of PostgreSQL.
 
 ---
 
